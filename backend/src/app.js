@@ -6,6 +6,10 @@ const authRoutes = require("./routes/authRoutes");
 
 dotenv.config();
 
+const chatRoutes = require("./routes/chatRoutes");
+
+app.use("/api/chats", chatRoutes);
+
 const app = express();
 app.use(cors());
 app.use(express.json());
