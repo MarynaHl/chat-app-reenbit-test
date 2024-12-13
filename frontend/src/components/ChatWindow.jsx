@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { sendMessageToChat } from "../services/api";
+import { toast } from "react-toastify";
 
 const ChatWindow = ({ activeChat }) => {
   const [messages, setMessages] = useState([]);
@@ -14,10 +15,15 @@ const ChatWindow = ({ activeChat }) => {
     // Відправка повідомлення на сервер
     const response = await sendMessageToChat(activeChat.id, newMessage);
     if (response.success) {
-      // Відображення відповіді сервера
       setTimeout(() => {
-        setMessages((prev) => [...prev, { text: response.data.message, sender: "Bot" }]);
-      }, 3000); // Імітація затримки у 3 секунди
+        const botMessage = response.data.message;
+
+        // Додавання авто-відповіді до чату
+        setMessages((prev) => [...prev, { text: botMessage, sender: "Bot" }]);
+
+        // Відображення сповіщення
+        toast.info(`New message from Bot: "${botMessage}"`);
+      }, 3000); // Імітація затримки
     }
 
     setNewMessage("");
