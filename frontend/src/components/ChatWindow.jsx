@@ -1,11 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { sendMessageToChat } from "../services/api";
 
 const ChatWindow = ({ activeChat }) => {
   const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
 
-  const handleSendMessage = (message) => {
-    setMessages((prev) => [...prev, { text: message, sender: "You" }]);
-    // Для автозаповнення відповіді додамо логіку пізніше
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
+
+    // Відображення повідомлення користувача
+    setMessages((prev) => [...prev, { text: newMessage, sender: "You" }]);
+
+    // Відправка повідомлення на сервер
+    const response = await sendMessageToChat(activeChat.id, newMessage);
+    if (response.success) {
+      // Відображення відповіді сервера
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { text: response.data.message, sender: "Bot" }]);
+      }, 3000); // Імітація затримки у 3 секунди
+    }
+
+    setNewMessage("");
   };
 
   if (!activeChat) {
@@ -23,10 +38,13 @@ const ChatWindow = ({ activeChat }) => {
       <input
         type="text"
         placeholder="Type your message"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") handleSendMessage(e.target.value);
+          if (e.key === "Enter") handleSendMessage();
         }}
       />
+      <button onClick={handleSendMessage}>Send</button>
     </div>
   );
 };

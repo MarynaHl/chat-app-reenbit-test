@@ -2,12 +2,12 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000/api";
 
-export const loginWithTestAccount = async (data) => {
+export const sendMessageToChat = async (chatId, message) => {
   try {
-    const response = await axios.post(`${API_URL}/auth/test-login`, data);
+    const response = await axios.post(`${API_URL}/chats/${chatId}/messages`, { message });
     return response.data;
   } catch (error) {
-    console.error("Error logging in", error);
+    console.error("Error sending message", error);
     return { success: false };
   }
 };
