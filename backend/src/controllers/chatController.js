@@ -1,9 +1,19 @@
 const Chat = require("../models/Chat");
 
+const getChats = async (req, res) => {
+  const { query } = req.query;
+  try {
+    const filter = query ? { name: { $regex: query, $options: "i" } } : {};
+    const chats = await Chat.find(filter);
+    res.json({ success: true, data: chats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 const updateChat = async (req, res) => {
   const { chatId } = req.params;
   const { name } = req.body;
-
   try {
     const updatedChat = await Chat.findByIdAndUpdate(chatId, { name }, { new: true });
     if (!updatedChat) {
@@ -15,10 +25,8 @@ const updateChat = async (req, res) => {
   }
 };
 
-module.exports = { updateChat };
 const deleteChat = async (req, res) => {
   const { chatId } = req.params;
-
   try {
     const deletedChat = await Chat.findByIdAndDelete(chatId);
     if (!deletedChat) {
@@ -30,4 +38,4 @@ const deleteChat = async (req, res) => {
   }
 };
 
-module.exports = { updateChat, deleteChat };
+module.exports = { getChats, updateChat, deleteChat };

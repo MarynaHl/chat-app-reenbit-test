@@ -1,32 +1,49 @@
-import React, { useState } from "react";
-import { sendMessageToChat } from "../services/api";
-import { toast } from "react-toastify";
+import React, { useState, useEffect } from "react";
+import { sendMessageToChat, updateMessage } from "../services/api";
+import socket from "../services/socket";
 
 const ChatWindow = ({ activeChat }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [editingMessage, setEditingMessage] = useState(null);
 
-  const handleSendMessage = async () => {
+  useEffect(() => {
+    socket.on("receive_message", (message) => {
+      setMessages((prev) => [...prev, message]);
+    });
+
+    return () => {
+      socket.off("receive_message");
+    };
+  }, []);
+
+  const handleSendMessage = () => {
     if (!newMessage.trim()) return;
 
-    // Відображення повідомлення користувача
-    setMessages((prev) => [...prev, { text: newMessage, sender: "You" }]);
+    const message = {
+      chatId: activeChat?.id || "global",
+      sender: "You",
+      text: newMessage,
+      timestamp: new Date(),
+    };
 
-    // Відправка повідомлення на сервер
-    const response = await sendMessageToChat(activeChat.id, newMessage);
-    if (response.success) {
-      setTimeout(() => {
-        const botMessage = response.data.message;
-
-        // Додавання авто-відповіді до чату
-        setMessages((prev) => [...prev, { text: botMessage, sender: "Bot" }]);
-
-        // Відображення сповіщення
-        toast.info(`New message from Bot: "${botMessage}"`);
-      }, 3000); // Імітація затримки
-    }
-
+    socket.emit("send_message", message);
+    setMessages((prev) => [...prev, message]);
     setNewMessage("");
+  };
+
+  const handleEditMessage = async () => {
+    if (!editingMessage.text.trim()) return;
+
+    const response = await updateMessage(editingMessage.id, editingMessage.text);
+    if (response.success) {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === editingMessage.id ? { ...msg, text: editingMessage.text } : msg
+        )
+      );
+      setEditingMessage(null);
+    }
   };
 
   if (!activeChat) {
@@ -38,19 +55,40 @@ const ChatWindow = ({ activeChat }) => {
       <h2>{activeChat.name}</h2>
       <div className="messages">
         {messages.map((msg, index) => (
-          <div key={index}>{msg.sender}: {msg.text}</div>
+          <div key={index} className="message">
+            <span>{msg.sender}: {msg.text}</span>
+            {msg.sender === "You" && (
+              <button onClick={() => setEditingMessage(msg)}>Edit</button>
+            )}
+          </div>
         ))}
       </div>
-      <input
-        type="text"
-        placeholder="Type your message"
-        value={newMessage}
-        onChange={(e) => setNewMessage(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") handleSendMessage();
-        }}
-      />
-      <button onClick={handleSendMessage}>Send</button>
+      {editingMessage ? (
+        <div>
+          <input
+            type="text"
+            value={editingMessage.text}
+            onChange={(e) =>
+              setEditingMessage({ ...editingMessage, text: e.target.value })
+            }
+          />
+          <button onClick={handleEditMessage}>Save</button>
+          <button onClick={() => setEditingMessage(null)}>Cancel</button>
+        </div>
+      ) : (
+        <div>
+          <input
+            type="text"
+            placeholder="Type your message"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSendMessage();
+            }}
+          />
+          <button onClick={handleSendMessage}>Send</button>
+        </div>
+      )}
     </div>
   );
 };
