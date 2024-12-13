@@ -1,0 +1,15 @@
+import React from "react";
+import LoginForm from "../components/LoginForm";
+import GoogleLoginButton from "../components/GoogleLoginButton";
+
+const AuthPage = () => {
+  return (
+    <div className="auth-page">
+      <h1>Welcome to Chat</h1>
+      <GoogleLoginButton />
+      <LoginForm />
+    </div>
+  );
+};
+
+export default AuthPage;
