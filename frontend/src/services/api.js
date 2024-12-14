@@ -41,3 +41,14 @@ export const updateMessage = async (messageId, newText) => {
     return { success: false };
   }
 };
+
+export const registerUser = async (data) => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/register`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error registering user", error);
+    return { success: false, message: "Registration failed" };
+  }
+};
+

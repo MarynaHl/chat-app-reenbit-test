@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import ChatList from "../components/ChatList";
 import ChatWindow from "../components/ChatWindow";
+import Header from "../components/Header";
 
 const MainChat = () => {
   const [activeChat, setActiveChat] = useState(null);
 
   return (
     <div className="main-chat">
-      <ChatList setActiveChat={setActiveChat} />
-      <ChatWindow activeChat={activeChat} />
+      <Header />
+      <div className="chat-container">
+        <ChatList setActiveChat={setActiveChat} />
+        <ChatWindow activeChat={activeChat} />
+      </div>
     </div>
   );
 };
