@@ -1,89 +1,30 @@
 const Chat = require('../models/Chat');
 
-// @desc    Get all chats
-// @route   GET /api/chats
-// @access  Public
-exports.getChats = async (req, res, next) => {
-  try {
+// Отримання всіх чатів
+const getAllChats = async (req, res) => {
     const chats = await Chat.find();
-    res.status(200).json({
-      success: true,
-      count: chats.length,
-      data: chats
-    });
-  } catch (err) {
-    res.status(400).json({ success: false });
-  }
+    res.json(chats);
 };
 
-// @desc    Get single chat
-// @route   GET /api/chats/:id
-// @access  Public
-exports.getChat = async (req, res, next) => {
-  try {
-    const chat = await Chat.findById(req.params.id);
-    if (!chat) {
-      return res.status(404).json({ success: false });
-    }
-    res.status(200).json({
-      success: true,
-      data: chat
-    });
-  } catch (err) {
-    res.status(400).json({ success: false });
-  }
+// Створення нового чату
+const createChat = async (req, res) => {
+    const { firstName, lastName } = req.body;
+    const newChat = new Chat({ firstName, lastName });
+    await newChat.save();
+    res.json(newChat);
 };
 
-// @desc    Create new chat
-// @route   POST /api/chats
-// @access  Public
-exports.createChat = async (req, res, next) => {
-  try {
-    const chat = await Chat.create(req.body);
-    res.status(201).json({
-      success: true,
-      data: chat
-    });
-  } catch (err) {
-    res.status(400).json({ success: false });
-  }
+// Оновлення чату
+const updateChat = async (req, res) => {
+    const { firstName, lastName } = req.body;
+    const updatedChat = await Chat.findByIdAndUpdate(req.params.id, { firstName, lastName }, { new: true });
+    res.json(updatedChat);
 };
 
-// @desc    Update chat
-// @route   PUT /api/chats/:id
-// @access  Public
-exports.updateChat = async (req, res, next) => {
-  try {
-    const chat = await Chat.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
-    if (!chat) {
-      return res.status(404).json({ success: false });
-    }
-    res.status(200).json({
-      success: true,
-      data: chat
-    });
-  } catch (err) {
-    res.status(400).json({ success: false });
-  }
+// Видалення чату
+const deleteChat = async (req, res) => {
+    await Chat.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
 };
 
-// @desc    Delete chat
-// @route   DELETE /api/chats/:id
-// @access  Public
-exports.deleteChat = async (req, res, next) => {
-  try {
-    const chat = await Chat.findByIdAndDelete(req.params.id);
-    if (!chat) {
-      return res.status(404).json({ success: false });
-    }
-    res.status(200).json({
-      success: true,
-      data: {}
-    });
-  } catch (err) {
-    res.status(400).json({ success: false });
-  }
-};
+module.exports = { getAllChats, createChat, updateChat, deleteChat };
