@@ -16,7 +16,7 @@ const RegisterForm = () => {
       const response = await registerUser(formData);
       if (response.success) {
         alert("Registration successful! You can now log in.");
-        window.location.href = "/";
+        window.location.href = "/chat";
       } else {
         alert(response.message || "Registration failed.");
       }

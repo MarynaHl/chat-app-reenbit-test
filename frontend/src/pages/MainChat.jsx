@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ChatList from "../components/ChatList";
 import ChatWindow from "../components/ChatWindow";
 import Header from "../components/Header";
+import "../styles/chat.css"
 
 const MainChat = () => {
   const [activeChat, setActiveChat] = useState(null);
