@@ -3,7 +3,9 @@ const { registerUser, loginWithEmailAndPassword, testLogin } = require("../contr
 const router = express.Router();
 
 router.post("/register", registerUser);
+
 router.post("/login", loginWithEmailAndPassword);
+
 router.post("/test-login", testLogin);
 
 module.exports = router;

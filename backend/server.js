@@ -17,6 +17,7 @@ io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
   socket.on("send_message", (data) => {
+    console.log("Message received:", data);
     io.emit("receive_message", data);
   });
 
@@ -32,6 +33,7 @@ setInterval(() => {
     text: "This is an automated message",
     timestamp: new Date(),
   };
+  console.log("Sending automated bot message.");
   io.emit("receive_message", botMessage);
 }, 10000);
 
@@ -46,4 +48,6 @@ mongoose
       console.log(`Server running on port ${PORT}`);
     });
   })
-  .catch((error) => console.error("Database connection error:", error));
+  .catch((error) => {
+    console.error("Database connection error:", error.message);
+  });
