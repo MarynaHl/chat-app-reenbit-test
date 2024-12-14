@@ -12,6 +12,16 @@ export const loginWithTestAccount = async (data) => {
   }
 };
 
+export const loginWithEmailAndPassword = async (data) => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/login`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error logging in with email and password", error);
+    return { success: false };
+  }
+};
+
 export const sendMessageToChat = async (chatId, message) => {
   try {
     const response = await axios.post(`${API_URL}/chats/${chatId}/messages`, { message });
