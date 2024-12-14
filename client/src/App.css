@@ -1,52 +1,46 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 .App {
-  text-align: center;
+  display: flex;
+  height: 100vh;
 }
 
 .App-header {
   background-color: #282c34;
-  min-height: 10vh;
+  padding: 20px;
+  color: white;
+  text-align: center;
+  width: 100%;
+}
+
+.ChatList, .Chat {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.ChatList {
+  border-right: 2px solid #ccc;
+}
+
+.Chat {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-input, button {
-  padding: 8px;
-  margin: 10px;
-}
-
-button {
-  cursor: pointer;
-}
-
-.ChatList li {
-  padding: 10px;
-  background: #f0f0f0;
-  margin-bottom: 5px;
-  cursor: pointer;
 }
 
 form {
   display: flex;
-  flex-direction: column;
+  padding: 10px;
 }
 
-input {
-  margin-bottom: 10px;
+input[type="text"], button {
+  padding: 10px;
+  margin: 5px;
+}
+
+input[type="text"] {
+  flex: 1;
 }
