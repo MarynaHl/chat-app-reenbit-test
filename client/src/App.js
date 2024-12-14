@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import ChatList from './ChatList'; 
-import NewChatForm from './NewChatForm'; 
-import Chat from './Chat'; 
+import ChatList from './components/ChatList'; 
+import NewChatForm from './components/NewChatForm'; 
+import Chat from './components/Chat'; 
 import { createChat, sendMessage } from './api'; 
 import './App.css';
 
