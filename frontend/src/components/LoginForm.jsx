@@ -6,10 +6,22 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await loginWithTestAccount(formData);
-    if (response.success) {
-      localStorage.setItem("userId", response.data.userId);
-      window.location.href = "/chat";
+
+    if (!formData.name.trim() || !formData.email.trim()) {
+      alert("Both name and email are required.");
+      return;
+    }
+
+    try {
+      const response = await loginWithTestAccount(formData);
+      if (response.success) {
+        localStorage.setItem("userId", response.data.userId);
+        window.location.href = "/chat";
+      } else {
+        alert("Login failed. Please check your name and email.");
+      }
+    } catch (error) {
+      alert("An error occurred while logging in. Please try again later.");
     }
   };
 
