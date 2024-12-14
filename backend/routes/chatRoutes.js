@@ -1,21 +1,33 @@
 const express = require('express');
-const {
-  getChats,
-  getChat,
-  createChat,
-  updateChat,
-  deleteChat
-} = require('../controllers/chatController');
+const Chat = require('../models/Chat');
 
 const router = express.Router();
 
-router.route('/')
-  .get(getChats)
-  .post(createChat);
+// Отримання всіх чатів
+router.get('/', async (req, res) => {
+    const chats = await Chat.find();
+    res.json(chats);
+});
 
-router.route('/:id')
-  .get(getChat)
-  .put(updateChat)
-  .delete(deleteChat);
+// Створення нового чату
+router.post('/', async (req, res) => {
+    const { firstName, lastName } = req.body;
+    const newChat = new Chat({ firstName, lastName });
+    await newChat.save();
+    res.json(newChat);
+});
+
+// Оновлення чату
+router.put('/:id', async (req, res) => {
+    const { firstName, lastName } = req.body;
+    const updatedChat = await Chat.findByIdAndUpdate(req.params.id, { firstName, lastName }, { new: true });
+    res.json(updatedChat);
+});
+
+// Видалення чату
+router.delete('/:id', async (req, res) => {
+    await Chat.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+});
 
 module.exports = router;
