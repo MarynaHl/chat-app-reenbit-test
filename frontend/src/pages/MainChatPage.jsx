@@ -13,6 +13,16 @@ const MainChatPage = () => {
         fetchChats().then((res) => setChats(res.data));
     }, []);
 
+    useEffect(() => {
+        if (selectedChat) {
+            const interval = setInterval(() => {
+                fetchMessages(selectedChat._id).then((res) => setMessages(res.data));
+            }, 3000);
+
+            return () => clearInterval(interval); // Очищення інтервалу
+        }
+    }, [selectedChat]);
+
     const selectChat = async (chat) => {
         setSelectedChat(chat);
         const res = await fetchMessages(chat._id);
@@ -22,8 +32,6 @@ const MainChatPage = () => {
     const handleSendMessage = async () => {
         if (!selectedChat || !newMessage.trim()) return;
         await sendMessage(selectedChat._id, newMessage);
-        const res = await fetchMessages(selectedChat._id);
-        setMessages(res.data);
         setNewMessage('');
     };
 
