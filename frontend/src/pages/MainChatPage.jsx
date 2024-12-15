@@ -31,8 +31,14 @@ const MainChatPage = () => {
 
     const handleSendMessage = async () => {
         if (!selectedChat || !newMessage.trim()) return;
-        await sendMessage(selectedChat._id, newMessage);
-        setNewMessage('');
+    
+        // Відправка повідомлення на сервер
+        const response = await sendMessage(selectedChat._id, newMessage);
+    
+        // Миттєве оновлення повідомлень у локальному стані
+        setMessages((prevMessages) => [...prevMessages, response.data]);
+    
+        setNewMessage(''); // Очищення поля вводу
     };
 
     const handleCreateChat = async () => {
