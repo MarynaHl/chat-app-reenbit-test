@@ -20,22 +20,45 @@ const ChatList = ({ onSelectChat }) => {
         }
     };
 
+    const handleLogout = () => {
+        alert('Logout successful!'); // Логіка виходу
+    };
+
     return (
         <div className="chat-list">
-            <button onClick={handleCreateChat}>Create Chat</button>
+            <div className="chat-list-header">
+                <div className="avatar-circle">
+                    <img src="/images/default-avatar.png" alt="User Avatar" />
+                </div>
+                <button className="logout-button" onClick={handleLogout}>Logout</button>
+            </div>
             <input
                 type="text"
                 placeholder="Search chats..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-bar"
             />
+            <h3 className="chat-title">Chats</h3>
             <ul>
                 {chats
-                    .filter((chat) => `${chat.firstName} ${chat.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .filter((chat) =>
+                        `${chat.firstName} ${chat.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
                     .map((chat) => (
-                        <li key={chat._id} onClick={() => onSelectChat(chat)}>{chat.firstName} {chat.lastName}</li>
+                        <li key={chat._id} onClick={() => onSelectChat(chat)}>
+                            <div className="chat-item">
+                                <div className="avatar-circle">
+                                    <img src="/images/default-avatar.png" alt="Chat Avatar" />
+                                </div>
+                                <div className="chat-info">
+                                    <span className="chat-name">{chat.firstName} {chat.lastName}</span>
+                                </div>
+                            </div>
+                        </li>
                     ))}
             </ul>
+            <button onClick={handleCreateChat} className="create-chat-button">Create Chat</button>
         </div>
     );
 };
