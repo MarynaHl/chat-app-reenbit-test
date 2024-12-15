@@ -26,3 +26,20 @@ app.use('/api/messages', require('./routes/messageRoutes'));
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+const seedChats = async () => {
+    const initialChats = [
+        { firstName: 'Alice', lastName: 'Freeman', avatar: '/images/avatar1.png' },
+        { firstName: 'Josefina', lastName: 'Walker', avatar: '/images/avatar2.png' },
+        { firstName: 'Velazquez', lastName: 'Piter', avatar: '/images/avatar3.png' },
+    ];
+
+    for (let chat of initialChats) {
+        const exists = await Chat.findOne({ firstName: chat.firstName, lastName: chat.lastName });
+        if (!exists) {
+            await Chat.create(chat);
+        }
+    }
+};
+
+seedChats();
