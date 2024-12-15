@@ -8,3 +8,5 @@ export const updateChat = (id, chatData) => API.put(`/chats/${id}`, chatData);
 export const deleteChat = (id) => API.delete(`/chats/${id}`);
 export const fetchMessages = (chatId) => API.get(`/messages/${chatId}`);
 export const sendMessage = (chatId, text) => API.post(`/messages/${chatId}`, { text });
+export const updateMessage = (messageId, newText) =>
+    API.put(`/messages/${messageId}`, { text: newText });

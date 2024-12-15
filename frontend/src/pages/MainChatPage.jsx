@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchChats, fetchMessages, sendMessage, createChat, deleteChat } from '../api/api';
+import { fetchChats, fetchMessages, sendMessage, createChat, deleteChat, updateMessage } from '../api/api';
 import '../styles/MainChatPage.css';
 
 const MainChatPage = () => {
@@ -8,6 +8,8 @@ const MainChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [editingMessage, setEditingMessage] = useState(null); // Стан для редагування
+    const [editedText, setEditedText] = useState(''); // Текст редагованого повідомлення
 
     useEffect(() => {
         fetchChats().then((res) => setChats(res.data));
@@ -19,7 +21,7 @@ const MainChatPage = () => {
                 fetchMessages(selectedChat._id).then((res) => setMessages(res.data));
             }, 3000);
 
-            return () => clearInterval(interval); // Очищення інтервалу
+            return () => clearInterval(interval);
         }
     }, [selectedChat]);
 
@@ -31,38 +33,32 @@ const MainChatPage = () => {
 
     const handleSendMessage = async () => {
         if (!selectedChat || !newMessage.trim()) return;
-    
-        // Відправка повідомлення на сервер
+
         const response = await sendMessage(selectedChat._id, newMessage);
-    
-        // Миттєве оновлення повідомлень у локальному стані
         setMessages((prevMessages) => [...prevMessages, response.data]);
-    
-        setNewMessage(''); // Очищення поля вводу
+        setNewMessage('');
     };
 
-    const handleCreateChat = async () => {
-        const firstName = prompt('Enter first name:');
-        const lastName = prompt('Enter last name:');
-        if (!firstName || !lastName) return;
-
-        await createChat({ firstName, lastName });
-        const res = await fetchChats();
-        setChats(res.data);
+    const handleEditMessage = (msg) => {
+        setEditingMessage(msg._id);
+        setEditedText(msg.text);
     };
 
-    const handleDeleteChat = async (id) => {
-        if (window.confirm('Are you sure you want to delete this chat?')) {
-            await deleteChat(id);
-            const res = await fetchChats();
-            setChats(res.data);
-        }
+    const handleUpdateMessage = async () => {
+        if (!editingMessage || !editedText.trim()) return;
+
+        await updateMessage(editingMessage, editedText);
+        const res = await fetchMessages(selectedChat._id);
+        setMessages(res.data);
+
+        setEditingMessage(null);
+        setEditedText('');
     };
 
     return (
         <div className="chat-container">
             <div className="sidebar">
-                <button onClick={handleCreateChat}>Create Chat</button>
+                <button onClick={() => createChat(prompt('Enter chat name'))}>Create Chat</button>
                 <input
                     type="text"
                     placeholder="Search chats..."
@@ -72,18 +68,11 @@ const MainChatPage = () => {
                 <ul>
                     {chats
                         .filter((chat) =>
-                            `${chat.firstName} ${chat.lastName}`
-                                .toLowerCase()
-                                .includes(searchQuery.toLowerCase())
+                            `${chat.firstName} ${chat.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
                         )
                         .map((chat) => (
-                            <li
-                                key={chat._id}
-                                onClick={() => selectChat(chat)}
-                                className={selectedChat?._id === chat._id ? 'active' : ''}
-                            >
+                            <li key={chat._id} onClick={() => selectChat(chat)}>
                                 {chat.firstName} {chat.lastName}
-                                <button onClick={() => handleDeleteChat(chat._id)}>Delete</button>
                             </li>
                         ))}
                 </ul>
@@ -93,17 +82,42 @@ const MainChatPage = () => {
                     <>
                         <h2>{selectedChat.firstName} {selectedChat.lastName}</h2>
                         <div className="messages">
-    {messages.map((msg, index) => (
-        <div key={index} className={`message-container ${msg.isAutoResponse ? 'received' : 'sent'}`}>
+    {messages.map((msg) => (
+        <div
+            key={msg._id}
+            className={`message-container ${msg.isAutoResponse ? 'received' : 'sent'}`}
+        >
             <div className={`message ${msg.isAutoResponse ? 'received' : 'sent'}`}>
-                <div className="message-text">{msg.text}</div>
+                {editingMessage === msg._id ? (
+                    <div className="edit-mode">
+                        <input
+                            type="text"
+                            value={editedText}
+                            onChange={(e) => setEditedText(e.target.value)}
+                            placeholder="Edit your message..."
+                        />
+                        <button onClick={handleUpdateMessage} className="save-button">Save</button>
+                        <button onClick={() => setEditingMessage(null)} className="cancel-button">Cancel</button>
+                    </div>
+                ) : (
+                    <div className="message-text">{msg.text}</div>
+                )}
             </div>
             <div className={`message-time ${msg.isAutoResponse ? 'left' : 'right'}`}>
                 {new Date(msg.createdAt).toLocaleString()}
             </div>
+            {!msg.isAutoResponse && editingMessage !== msg._id && (
+                <button
+                    className="edit-button"
+                    onClick={() => handleEditMessage(msg)}
+                >
+                    Edit
+                </button>
+            )}
         </div>
     ))}
 </div>
+
 
                         <div className="input-area">
                             <input
