@@ -93,12 +93,18 @@ const MainChatPage = () => {
                     <>
                         <h2>{selectedChat.firstName} {selectedChat.lastName}</h2>
                         <div className="messages">
-                            {messages.map((msg, index) => (
-                                <div key={index} className={msg.isAutoResponse ? 'message auto' : 'message'}>
-                                    {msg.text}
-                                </div>
-                            ))}
-                        </div>
+    {messages.map((msg, index) => (
+        <div key={index} className={`message-container ${msg.isAutoResponse ? 'received' : 'sent'}`}>
+            <div className={`message ${msg.isAutoResponse ? 'received' : 'sent'}`}>
+                <div className="message-text">{msg.text}</div>
+            </div>
+            <div className={`message-time ${msg.isAutoResponse ? 'left' : 'right'}`}>
+                {new Date(msg.createdAt).toLocaleString()}
+            </div>
+        </div>
+    ))}
+</div>
+
                         <div className="input-area">
                             <input
                                 type="text"
