@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchChats, createChat } from '../api/api';
+import { fetchChats, createChat, updateChat, deleteChat, fetchMessages } from '../api/api';
 import '../styles/ChatList.css';
 
 const ChatList = ({ onSelectChat }) => {
@@ -7,28 +7,53 @@ const ChatList = ({ onSelectChat }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        fetchChats().then((res) => setChats(res.data));
+        fetchChatsWithMessages();
     }, []);
+
+    const fetchChatsWithMessages = async () => {
+        const chats = await fetchChats();
+        const updatedChats = await Promise.all(
+            chats.data.map(async (chat) => {
+                const messages = await fetchMessages(chat._id);
+                const lastMessageText = messages.data[messages.data.length - 1]?.text || '';
+                const truncatedMessage = lastMessageText.length > 15
+                    ? `${lastMessageText.slice(0, 15)}...`
+                    : lastMessageText;
+                return { ...chat, lastMessage: truncatedMessage };
+            })
+        );
+        setChats(updatedChats);
+    };    
 
     const handleCreateChat = async () => {
         const firstName = prompt('Enter first name:');
         const lastName = prompt('Enter last name:');
         if (firstName && lastName) {
             await createChat({ firstName, lastName, avatar: '/images/default-avatar.png' });
-            const res = await fetchChats();
-            setChats(res.data);
+            await fetchChatsWithMessages();
         }
     };
 
-    const handleLogout = () => {
-        alert('Logout successful!');
+    const handleEditChat = async (chat) => {
+        const firstName = prompt('Edit first name:', chat.firstName);
+        const lastName = prompt('Edit last name:', chat.lastName);
+        if (firstName && lastName) {
+            await updateChat(chat._id, { firstName, lastName });
+            await fetchChatsWithMessages();
+        }
+    };
+
+    const handleDeleteChat = async (chatId) => {
+        if (window.confirm('Are you sure you want to delete this chat?')) {
+            await deleteChat(chatId);
+            await fetchChatsWithMessages();
+        }
     };
 
     const sortedChats = [...chats].sort((a, b) => {
         const fixedUsers = ['Alice Freeman', 'Josefina Walker', 'Velazquez Piter'];
         const aName = `${a.firstName} ${a.lastName}`;
         const bName = `${b.firstName} ${b.lastName}`;
-
         const aIsFixed = fixedUsers.includes(aName);
         const bIsFixed = fixedUsers.includes(bName);
 
@@ -43,9 +68,7 @@ const ChatList = ({ onSelectChat }) => {
                 <div className="avatar-circle">
                     <img src="/images/default-avatar.png" alt="User Avatar" />
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
-                    Logout
-                </button>
+                <button className="logout-button">Logout</button>
             </div>
             <input
                 type="text"
@@ -64,16 +87,25 @@ const ChatList = ({ onSelectChat }) => {
                         <li key={chat._id} onClick={() => onSelectChat(chat)} className="chat-item">
                             <div className="avatar-circle">
                                 <img
-                                    src={
-                                        chat.avatar && chat.avatar.startsWith('/images')
-                                            ? chat.avatar
-                                            : '/images/default-avatar.png'
-                                    }
+                                    src={chat.avatar || '/images/default-avatar.png'}
                                     alt="Chat Avatar"
                                 />
                             </div>
                             <div className="chat-info">
-                                <span className="chat-name">{chat.firstName} {chat.lastName}</span>
+                                <span className="chat-name">
+                                    {chat.firstName} {chat.lastName}
+                                </span>
+                                <span className="last-message">
+                                    {chat.lastMessage || 'No messages yet'}
+                                </span>
+                            </div>
+                            <div className="chat-actions">
+                                <button onClick={() => handleEditChat(chat)} className="edit-chat">
+                                    Edit
+                                </button>
+                                <button onClick={() => handleDeleteChat(chat._id)} className="delete-chat">
+                                    Delete
+                                </button>
                             </div>
                         </li>
                     ))}
