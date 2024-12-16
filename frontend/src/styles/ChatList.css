@@ -35,7 +35,7 @@
     object-fit: cover;
 }
 
-.logout-button {
+/* .logout-button {
     background-color: #ff6b6b;
     color: white;
     border: none;
@@ -44,11 +44,11 @@
     cursor: pointer;
     transition: background 0.3s;
     font-size: 12px;
-}
+} */
 
-.logout-button:hover {
+/* .logout-button:hover {
     background-color: #e04c4c;
-}
+} */
 
 .search-bar {
     padding: 8px 10px;
