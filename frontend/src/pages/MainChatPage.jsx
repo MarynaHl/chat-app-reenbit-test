@@ -11,25 +11,40 @@ const MainChatPage = () => {
     const [editingMessage, setEditingMessage] = useState(null);
     const [editedText, setEditedText] = useState('');
     const [toastMessage, setToastMessage] = useState('');
+    const [previousMessageCount, setPreviousMessageCount] = useState(0); // Для відстеження кількості повідомлень
 
+    // Завантаження повідомлень одразу при виборі чату
+    useEffect(() => {
+        if (selectedChat) {
+            fetchMessages(selectedChat._id).then((res) => {
+                setMessages(res.data);
+                setPreviousMessageCount(res.data.length); // Зберігаємо поточну кількість
+            });
+        }
+    }, [selectedChat]);
+
+    // Оновлення повідомлень для нового повідомлення у відкритому чаті
     useEffect(() => {
         if (selectedChat) {
             const interval = setInterval(() => {
                 fetchMessages(selectedChat._id).then((res) => {
-                    if (res.data.length > messages.length) {
+                    if (res.data.length > previousMessageCount) {
                         setToastMessage('You have a new message!');
+                        setPreviousMessageCount(res.data.length);
                     }
                     setMessages(res.data);
                 });
             }, 3000);
+
             return () => clearInterval(interval);
         }
-    }, [selectedChat, messages]);
+    }, [selectedChat, previousMessageCount]);
 
     const handleSendMessage = async () => {
         if (!selectedChat || !newMessage.trim()) return;
         const response = await sendMessage(selectedChat._id, newMessage);
         setMessages((prevMessages) => [...prevMessages, response.data]);
+        setPreviousMessageCount((prev) => prev + 1); // Оновлюємо кількість
         setNewMessage('');
     };
 
@@ -61,7 +76,11 @@ const MainChatPage = () => {
                                     <div className={`message ${msg.isAutoResponse ? 'received' : 'sent'}`}>
                                         {editingMessage === msg._id ? (
                                             <div className="edit-mode">
-                                                <input type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} />
+                                                <input
+                                                    type="text"
+                                                    value={editedText}
+                                                    onChange={(e) => setEditedText(e.target.value)}
+                                                />
                                                 <button onClick={handleUpdateMessage} className="save-button">Save</button>
                                                 <button onClick={() => setEditingMessage(null)} className="cancel-button">Cancel</button>
                                             </div>
@@ -79,7 +98,12 @@ const MainChatPage = () => {
                             ))}
                         </div>
                         <div className="input-area">
-                            <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." />
+                            <input
+                                type="text"
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                placeholder="Type a message..."
+                            />
                             <button onClick={handleSendMessage}>Send</button>
                         </div>
                     </>
