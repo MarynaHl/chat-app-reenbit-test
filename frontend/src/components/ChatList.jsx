@@ -29,9 +29,12 @@ const ChatList = ({ onSelectChat }) => {
         const aName = `${a.firstName} ${a.lastName}`;
         const bName = `${b.firstName} ${b.lastName}`;
 
-        if (fixedUsers.includes(aName) && !fixedUsers.includes(bName)) return -1;
-        if (!fixedUsers.includes(aName) && fixedUsers.includes(bName)) return 1;
-        return 0;
+        const aIsFixed = fixedUsers.includes(aName);
+        const bIsFixed = fixedUsers.includes(bName);
+
+        if (aIsFixed && !bIsFixed) return -1;
+        if (!aIsFixed && bIsFixed) return 1;
+        return aName.localeCompare(bName);
     });
 
     return (
@@ -60,7 +63,14 @@ const ChatList = ({ onSelectChat }) => {
                     .map((chat) => (
                         <li key={chat._id} onClick={() => onSelectChat(chat)} className="chat-item">
                             <div className="avatar-circle">
-                                <img src={chat.avatar || '/images/default-avatar.png'} alt="Chat Avatar" />
+                                <img
+                                    src={
+                                        chat.avatar && chat.avatar.startsWith('/images')
+                                            ? chat.avatar
+                                            : '/images/default-avatar.png'
+                                    }
+                                    alt="Chat Avatar"
+                                />
                             </div>
                             <div className="chat-info">
                                 <span className="chat-name">{chat.firstName} {chat.lastName}</span>
