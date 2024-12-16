@@ -76,13 +76,6 @@ const MainChatPage = () => {
                                     key={msg._id}
                                     className={`message-container ${msg.isAutoResponse ? 'received' : 'sent'}`}
                                 >
-                                    {msg.isAutoResponse && (
-                                        <img
-                                            src={selectedChat.avatar}
-                                            alt="Avatar"
-                                            className="message-avatar"
-                                        />
-                                    )}
                                     <div className={`message ${msg.isAutoResponse ? 'received' : 'sent'}`}>
                                         {editingMessage === msg._id ? (
                                             <div className="edit-mode">
@@ -97,9 +90,19 @@ const MainChatPage = () => {
                                         ) : (
                                             <div className="message-text">{msg.text}</div>
                                         )}
-                                        <div className={`message-time ${msg.isAutoResponse ? 'left' : 'right'}`}>
+                                    </div>
+                                    <div className="message-meta">
+                                        <span className="message-time">
                                             {new Date(msg.createdAt).toLocaleString()}
-                                        </div>
+                                        </span>
+                                        {!msg.isAutoResponse && editingMessage !== msg._id && (
+                                            <button
+                                                className="edit-button"
+                                                onClick={() => handleEditMessage(msg)}
+                                            >
+                                                Edit
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))}
