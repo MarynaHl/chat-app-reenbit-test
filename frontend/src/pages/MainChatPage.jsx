@@ -11,19 +11,17 @@ const MainChatPage = () => {
     const [editingMessage, setEditingMessage] = useState(null);
     const [editedText, setEditedText] = useState('');
     const [toastMessage, setToastMessage] = useState('');
-    const [previousMessageCount, setPreviousMessageCount] = useState(0); // Для відстеження кількості повідомлень
+    const [previousMessageCount, setPreviousMessageCount] = useState(0);
 
-    // Завантаження повідомлень одразу при виборі чату
     useEffect(() => {
         if (selectedChat) {
             fetchMessages(selectedChat._id).then((res) => {
                 setMessages(res.data);
-                setPreviousMessageCount(res.data.length); // Зберігаємо поточну кількість
+                setPreviousMessageCount(res.data.length);
             });
         }
     }, [selectedChat]);
 
-    // Оновлення повідомлень для нового повідомлення у відкритому чаті
     useEffect(() => {
         if (selectedChat) {
             const interval = setInterval(() => {
@@ -35,7 +33,6 @@ const MainChatPage = () => {
                     setMessages(res.data);
                 });
             }, 3000);
-
             return () => clearInterval(interval);
         }
     }, [selectedChat, previousMessageCount]);
@@ -44,7 +41,7 @@ const MainChatPage = () => {
         if (!selectedChat || !newMessage.trim()) return;
         const response = await sendMessage(selectedChat._id, newMessage);
         setMessages((prevMessages) => [...prevMessages, response.data]);
-        setPreviousMessageCount((prev) => prev + 1); // Оновлюємо кількість
+        setPreviousMessageCount((prev) => prev + 1);
         setNewMessage('');
     };
 
@@ -69,10 +66,23 @@ const MainChatPage = () => {
             <div className="chat-area">
                 {selectedChat ? (
                     <>
-                        <h2>{selectedChat.firstName} {selectedChat.lastName}</h2>
+                        <div className="chat-header">
+                            <img src={selectedChat.avatar} alt="User Avatar" className="chat-header-avatar" />
+                            <h2>{selectedChat.firstName} {selectedChat.lastName}</h2>
+                        </div>
                         <div className="messages">
                             {messages.map((msg) => (
-                                <div key={msg._id} className={`message-container ${msg.isAutoResponse ? 'received' : 'sent'}`}>
+                                <div
+                                    key={msg._id}
+                                    className={`message-container ${msg.isAutoResponse ? 'received' : 'sent'}`}
+                                >
+                                    {msg.isAutoResponse && (
+                                        <img
+                                            src={selectedChat.avatar}
+                                            alt="Avatar"
+                                            className="message-avatar"
+                                        />
+                                    )}
                                     <div className={`message ${msg.isAutoResponse ? 'received' : 'sent'}`}>
                                         {editingMessage === msg._id ? (
                                             <div className="edit-mode">
@@ -87,13 +97,10 @@ const MainChatPage = () => {
                                         ) : (
                                             <div className="message-text">{msg.text}</div>
                                         )}
+                                        <div className={`message-time ${msg.isAutoResponse ? 'left' : 'right'}`}>
+                                            {new Date(msg.createdAt).toLocaleString()}
+                                        </div>
                                     </div>
-                                    <div className={`message-time ${msg.isAutoResponse ? 'left' : 'right'}`}>
-                                        {new Date(msg.createdAt).toLocaleString()}
-                                    </div>
-                                    {!msg.isAutoResponse && editingMessage !== msg._id && (
-                                        <button className="edit-button" onClick={() => handleEditMessage(msg)}>Edit</button>
-                                    )}
                                 </div>
                             ))}
                         </div>
@@ -108,7 +115,7 @@ const MainChatPage = () => {
                         </div>
                     </>
                 ) : (
-                    <p>Select a chat to start messaging.</p>
+                    <p className="select-chat-message">Select a chat to start messaging</p>
                 )}
             </div>
         </div>
