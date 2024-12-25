@@ -47,5 +47,5 @@ Start the backend and frontend servers using npm start or your preferred command
 __________________________________________________________
 
 
-💡 Need help? Feel free to reach out! 😊
+😊
 
