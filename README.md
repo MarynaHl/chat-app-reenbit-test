@@ -12,6 +12,11 @@ Notifications: Notifications for new messages have been implemented.
 
 Chat Search: Search by name is fully functional.
 
+
+
+<img width="1716" alt="Знімок екрана 2024-12-26 о 09 53 29" src="https://github.com/user-attachments/assets/5e1ccb5d-0f72-42c7-bfe8-8c96328212ac" />
+
+
 _________________________________________________________
 
 ### 🌐 Deployment:
